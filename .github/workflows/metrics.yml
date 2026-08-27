@@ -1,9 +1,14 @@
 name: GitHub Metrics
 
 on:
+  # Mise à jour automatique tous les jours
   schedule:
     - cron: "0 6 * * *"
+
+  # Bouton Run workflow
   workflow_dispatch:
+
+  # Regénérer après modification du profil
   push:
     branches:
       - main
@@ -11,121 +16,288 @@ on:
 permissions:
   contents: write
 
+
 jobs:
-  metrics:
+
+  github-metrics:
+
     runs-on: ubuntu-latest
 
     steps:
-      # ============================================================
-      # 1) DASHBOARD PRINCIPAL
-      # ============================================================
-      - name: Main dashboard
+
+      - name: Generate advanced GitHub dashboard
+
         uses: lowlighter/metrics@latest
+
         with:
+
+          # ============================================================
+          # AUTHENTIFICATION
+          # ============================================================
+
           token: ${{ secrets.METRICS_TOKEN }}
+
           user: maaxxe
 
-          filename: metrics-main.svg
+
+          # ============================================================
+          # FICHIER DE SORTIE
+          # ============================================================
+
+          filename: github-metrics.svg
+
+
+          # ============================================================
+          # TEMPLATE
+          # ============================================================
+
+          # C'est le template utilisé pour obtenir le rendu
+          # proche de ton image de référence
           template: classic
 
-          config_timezone: Europe/Paris
-          config_animations: yes
+          # Très important :
+          # transforme Metrics en gros dashboard multi-colonnes
           config_display: columns
 
+          config_timezone: Europe/Paris
+
+          # Animations SVG
+          config_animations: yes
+
+          # Emojis / icônes GitHub
+          config_twemoji: yes
+          config_gemoji: yes
+          config_octicon: yes
+
+          # Si un plugin secondaire plante,
+          # le reste du dashboard est quand même généré
+          plugins_errors_fatal: no
+
+
+          # ============================================================
+          # PROFIL / STATISTIQUES PRINCIPALES
+          # ============================================================
+
+          # Donne la partie :
+          #
+          # Maxime Robin
+          # joined GitHub...
+          # followers
+          # repositories
+          # releases
+          # packages
+          # stars
+          # forks
+          # watchers
+          # contributions...
+          #
           base: header, activity, community, repositories, metadata
+
+          # Statistiques plus précises
           base_indepth: yes
 
+          # Analyse suffisamment de repositories
+          repositories: 100
+
+          repositories_forks: no
+
+          repositories_affiliations: owner
+
+
+          # ============================================================
+          # ORDRE DU DASHBOARD
+          # ============================================================
+
+          # On essaie de reproduire la disposition de ton exemple :
+          #
+          # profil        | stats/habits     | PageSpeed
+          #               |                 | calendar
+          #               | topics          | languages
+          #               |                 | projects
+          #
           config_order: >
             base.header,
-            languages,
+            pagespeed,
+            isocalendar,
             habits,
             topics,
-            achievements,
+            languages,
+            projects,
             base.activity,
+            base.community,
             base.repositories,
             base.metadata
 
-          # Languages
-          plugin_languages: yes
-          plugin_languages_limit: 8
-          plugin_languages_details: percentage
-          plugin_languages_other: yes
-          plugin_languages_sections: most-used
-          plugin_languages_ignored: >
-            html, css, jupyter notebook
 
-          # Habits
-          plugin_habits: yes
-          plugin_habits_from: 500
-          plugin_habits_days: 30
-          plugin_habits_facts: yes
-          plugin_habits_charts: yes
-          plugin_habits_charts_type: graph
-          plugin_habits_trim: yes
+          # ============================================================
+          # LIGNES DE CODE AJOUTÉES / SUPPRIMÉES
+          # ============================================================
 
-          # Topics with icons
-          plugin_topics: yes
-          plugin_topics_mode: icons
-          plugin_topics_limit: 24
+          # Comme dans ton image :
+          #
+          # 1.52m added
+          # 379k removed
+          #
+          plugin_lines: yes
 
-          # Achievements
-          plugin_achievements: yes
-          plugin_achievements_display: compact
-          plugin_achievements_limit: 8
+          # Les statistiques apparaissent directement
+          # dans la partie repositories/profile
+          plugin_lines_sections: base
 
-          plugins_errors_fatal: no
+          # Deuxième requête pour améliorer la précision
+          plugin_lines_delay: 30
 
-      # ============================================================
-      # 2) CALENDRIER ISOMÉTRIQUE 3D
-      # ============================================================
-      - name: Isometric calendar
-        uses: lowlighter/metrics@latest
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          user: maaxxe
 
-          filename: metrics-isocalendar.svg
-          base: ""
+          # ============================================================
+          # PAGESPEED DE TON PORTFOLIO
+          # ============================================================
 
+          # Comme les quatre cercles :
+          #
+          # Performance
+          # Accessibility
+          # Best Practices
+          # SEO
+          #
+          plugin_pagespeed: yes
+
+          plugin_pagespeed_url: https://maaxxe.github.io/
+
+          # On NE met PAS detailed ici.
+          # Le rendu simple ressemble davantage à ton image.
+          plugin_pagespeed_detailed: no
+
+          # Pas de screenshot du site :
+          # ça prendrait trop de place
+          plugin_pagespeed_screenshot: no
+
+          # PWA si ton site est compatible
+          plugin_pagespeed_pwa: yes
+
+
+          # ============================================================
+          # CONTRIBUTION CALENDAR 3D
+          # ============================================================
+
+          # Partie :
+          #
+          # Contributions calendar
+          #
+          #      ▄
+          #   ▂ ██
+          # ▂ ████ ▃
+          # █████████
+          #
+          # Current streak
+          # commits/day
+          #
           plugin_isocalendar: yes
+
           plugin_isocalendar_duration: full-year
 
-          plugins_errors_fatal: no
 
-      # ============================================================
-      # 3) PAGESPEED DE TON SITE github.io
-      # ============================================================
-      - name: PageSpeed website card
-        uses: lowlighter/metrics@latest
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          user: maaxxe
+          # ============================================================
+          # CODING HABITS & RECENT ACTIVITY
+          # ============================================================
 
-          filename: metrics-pagespeed.svg
-          base: ""
+          plugin_habits: yes
 
-          plugin_pagespeed: yes
-          plugin_pagespeed_url: https://maaxxe.github.io
-          plugin_pagespeed_detailed: yes
-          plugin_pagespeed_screenshot: yes
+          # Utiliser beaucoup d'événements pour que les stats
+          # soient représentatives
+          plugin_habits_from: 1000
 
-          plugins_errors_fatal: no
+          # Maximum accepté par le plugin
+          plugin_habits_days: 30
 
-      # ============================================================
-      # 4) SKYLINE 3D
-      # ============================================================
-      - name: Skyline
-        uses: lowlighter/metrics@latest
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          user: maaxxe
+          # Informations intéressantes :
+          # - heure la plus active
+          # - jour le plus actif
+          # - indentation
+          # etc.
+          plugin_habits_facts: yes
 
-          filename: metrics-skyline.svg
-          base: ""
+          # Graphiques :
+          #
+          # Commit activity per time of day
+          # Commit activity per day
+          # Language activity
+          #
+          plugin_habits_charts: yes
 
-          plugin_skyline: yes
-          plugin_skyline_year: 2026
-          plugin_skyline_frames: 60
-          plugin_skyline_quality: 0.8
+          # Graphiques SVG fluides
+          plugin_habits_charts_type: graph
 
-          plugins_errors_fatal: no
+          # Ne pas afficher des heures complètement inutilisées
+          plugin_habits_trim: yes
+
+          # Nombre de langages dans Language Activity
+          plugin_habits_languages_limit: 8
+
+          plugin_habits_languages_threshold: 0%
+
+
+          # ============================================================
+          # MASTERED TECHNOLOGIES AND TOPICS
+          # ============================================================
+
+          # C'EST LA PARTIE AVEC TOUTES LES ICÔNES COLORÉES
+          #
+          # Python
+          # Linux
+          # Docker
+          # Git
+          # Raspberry Pi
+          # etc.
+          #
+          plugin_topics: yes
+
+          # IMPORTANT :
+          # icônes au lieu de texte
+          plugin_topics_mode: icons
+
+          # Trier les technologies les plus populaires
+          plugin_topics_sort: stars
+
+          # Configuration utilisée dans l'exemple officiel
+          # pour l'affichage des icônes
+          plugin_topics_limit: 0
+
+
+          # ============================================================
+          # MOST USED LANGUAGES
+          # ============================================================
+
+          plugin_languages: yes
+
+          # Maximum supporté
+          plugin_languages_limit: 8
+
+          plugin_languages_threshold: 0%
+
+          plugin_languages_other: yes
+
+          # Affiche %
+          plugin_languages_details: percentage
+
+          # Seulement la grande barre "Most used languages"
+          plugin_languages_sections: most-used
+
+          # Couleurs beaucoup plus visibles
+          plugin_languages_colors: rainbow
+
+
+          # ============================================================
+          # GITHUB PROJECTS
+          # ============================================================
+
+          # Comme :
+          #
+          # 1 Project
+          # Roadmap and todos
+          # ███████████████░░░
+          #
+          plugin_projects: yes
+
+          plugin_projects_limit: 4
+
+          plugin_projects_descriptions: yes
