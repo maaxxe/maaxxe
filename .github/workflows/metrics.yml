@@ -1,0 +1,131 @@
+name: GitHub Metrics
+
+on:
+  schedule:
+    # Mise à jour automatique tous les jours à 06:00 UTC
+    - cron: "0 6 * * *"
+
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+jobs:
+  github-metrics:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Generate GitHub metrics
+        uses: lowlighter/metrics@latest
+
+        with:
+          # =========================================================
+          # AUTHENTIFICATION
+          # =========================================================
+
+          token: ${{ secrets.METRICS_TOKEN }}
+
+          user: maaxxe
+
+          # =========================================================
+          # FICHIER GÉNÉRÉ
+          # =========================================================
+
+          filename: github-metrics.svg
+
+          # =========================================================
+          # STYLE GÉNÉRAL
+          # =========================================================
+
+          template: classic
+
+          # Très important :
+          # affichage large en plusieurs colonnes
+          config_display: columns
+
+          config_timezone: Europe/Paris
+
+          config_animations: yes
+
+          # =========================================================
+          # INFORMATIONS GITHUB DE BASE
+          # =========================================================
+
+          base: header, activity, community, repositories, metadata
+
+          # =========================================================
+          # ORDRE DES WIDGETS
+          # =========================================================
+
+          config_order: >
+            base.header,
+            isocalendar,
+            languages,
+            habits,
+            topics,
+            base.activity,
+            base.repositories,
+            base.metadata
+
+          # =========================================================
+          # CALENDRIER 3D / ISOMÉTRIQUE
+          # =========================================================
+
+          plugin_isocalendar: yes
+
+          plugin_isocalendar_duration: full-year
+
+          # =========================================================
+          # LANGAGES
+          # =========================================================
+
+          plugin_languages: yes
+
+          plugin_languages_limit: 8
+
+          plugin_languages_details: percentage
+
+          plugin_languages_categories: programming, markup
+
+          plugin_languages_other: yes
+
+          # On évite que les fichiers de configuration
+          # dominent les statistiques
+          plugin_languages_ignored: >
+            Jupyter Notebook,
+            HTML,
+            CSS,
+            Dockerfile,
+            Makefile
+
+          # =========================================================
+          # HABITUDES DE CODE
+          # =========================================================
+
+          plugin_habits: yes
+
+          plugin_habits_from: 500
+
+          plugin_habits_days: 30
+
+          plugin_habits_facts: yes
+
+          plugin_habits_charts: yes
+
+          plugin_habits_charts_type: graph
+
+          plugin_habits_trim: yes
+
+          # =========================================================
+          # TECHNOLOGIES / TOPICS
+          # =========================================================
+
+          plugin_topics: yes
+
+          plugin_topics_mode: icons
+
+          plugin_topics_limit: 20
