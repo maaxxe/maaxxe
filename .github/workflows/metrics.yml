@@ -1,38 +1,37 @@
 name: GitHub Metrics
 
 on:
-  # Mise à jour automatique tous les jours
+  # Mise à jour automatique une fois par jour
   schedule:
     - cron: "0 6 * * *"
 
-  # Bouton Run workflow
+  # Permet de lancer manuellement depuis GitHub Actions
   workflow_dispatch:
 
-  # Regénérer après modification du profil
-  push:
-    branches:
-      - main
+# Évite d'avoir plusieurs générations Metrics en même temps
+concurrency:
+  group: github-profile-metrics
+  cancel-in-progress: true
 
 permissions:
   contents: write
 
 
 jobs:
-
   github-metrics:
 
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Generate advanced GitHub dashboard
+      - name: Generate GitHub dashboard
 
         uses: lowlighter/metrics@latest
 
         with:
 
           # ============================================================
-          # AUTHENTIFICATION
+          # COMPTE / AUTHENTIFICATION
           # ============================================================
 
           token: ${{ secrets.METRICS_TOKEN }}
@@ -41,62 +40,43 @@ jobs:
 
 
           # ============================================================
-          # FICHIER DE SORTIE
+          # FICHIER GÉNÉRÉ
           # ============================================================
 
           filename: github-metrics.svg
 
 
           # ============================================================
-          # TEMPLATE
+          # APPARENCE
           # ============================================================
 
-          # C'est le template utilisé pour obtenir le rendu
-          # proche de ton image de référence
           template: classic
 
-          # Très important :
-          # transforme Metrics en gros dashboard multi-colonnes
+          # Rend le dashboard en plusieurs colonnes,
+          # comme sur ton image de référence
           config_display: columns
 
           config_timezone: Europe/Paris
 
-          # Animations SVG
           config_animations: yes
 
-          # Emojis / icônes GitHub
           config_twemoji: yes
           config_gemoji: yes
           config_octicon: yes
 
-          # Si un plugin secondaire plante,
-          # le reste du dashboard est quand même généré
+          # Un plugin secondaire ne doit pas faire échouer
+          # tout le workflow
           plugins_errors_fatal: no
 
 
           # ============================================================
-          # PROFIL / STATISTIQUES PRINCIPALES
+          # INFORMATIONS GITHUB PRINCIPALES
           # ============================================================
 
-          # Donne la partie :
-          #
-          # Maxime Robin
-          # joined GitHub...
-          # followers
-          # repositories
-          # releases
-          # packages
-          # stars
-          # forks
-          # watchers
-          # contributions...
-          #
           base: header, activity, community, repositories, metadata
 
-          # Statistiques plus précises
           base_indepth: yes
 
-          # Analyse suffisamment de repositories
           repositories: 100
 
           repositories_forks: no
@@ -105,16 +85,9 @@ jobs:
 
 
           # ============================================================
-          # ORDRE DU DASHBOARD
+          # ORDRE DES ÉLÉMENTS
           # ============================================================
 
-          # On essaie de reproduire la disposition de ton exemple :
-          #
-          # profil        | stats/habits     | PageSpeed
-          #               |                 | calendar
-          #               | topics          | languages
-          #               |                 | projects
-          #
           config_order: >
             base.header,
             pagespeed,
@@ -122,182 +95,137 @@ jobs:
             habits,
             topics,
             languages,
-            projects,
+            achievements,
+            base.repositories,
             base.activity,
             base.community,
-            base.repositories,
             base.metadata
 
 
           # ============================================================
-          # LIGNES DE CODE AJOUTÉES / SUPPRIMÉES
+          # LIGNES DE CODE
+          #
+          # Affiche :
+          # xxx added
+          # xxx removed
           # ============================================================
 
-          # Comme dans ton image :
-          #
-          # 1.52m added
-          # 379k removed
-          #
           plugin_lines: yes
 
-          # Les statistiques apparaissent directement
-          # dans la partie repositories/profile
           plugin_lines_sections: base
 
-          # Deuxième requête pour améliorer la précision
           plugin_lines_delay: 30
 
 
           # ============================================================
-          # PAGESPEED DE TON PORTFOLIO
-          # ============================================================
-
-          # Comme les quatre cercles :
+          # GOOGLE PAGESPEED
           #
           # Performance
           # Accessibility
           # Best Practices
           # SEO
-          #
+          # ============================================================
+
           plugin_pagespeed: yes
 
           plugin_pagespeed_url: https://maaxxe.github.io/
 
-          # On NE met PAS detailed ici.
-          # Le rendu simple ressemble davantage à ton image.
+          # Crée un secret PAGESPEED_TOKEN pour éviter l'erreur 429
+          plugin_pagespeed_token: ${{ secrets.PAGESPEED_TOKEN }}
+
+          # Comme ton image de référence :
+          # uniquement les scores principaux
           plugin_pagespeed_detailed: no
 
-          # Pas de screenshot du site :
-          # ça prendrait trop de place
           plugin_pagespeed_screenshot: no
 
-          # PWA si ton site est compatible
-          plugin_pagespeed_pwa: yes
+          plugin_pagespeed_pwa: no
 
 
           # ============================================================
-          # CONTRIBUTION CALENDAR 3D
+          # CALENDRIER DE CONTRIBUTIONS 3D
           # ============================================================
 
-          # Partie :
-          #
-          # Contributions calendar
-          #
-          #      ▄
-          #   ▂ ██
-          # ▂ ████ ▃
-          # █████████
-          #
-          # Current streak
-          # commits/day
-          #
           plugin_isocalendar: yes
 
           plugin_isocalendar_duration: full-year
 
 
           # ============================================================
-          # CODING HABITS & RECENT ACTIVITY
-          # ============================================================
-
-          plugin_habits: yes
-
-          # Utiliser beaucoup d'événements pour que les stats
-          # soient représentatives
-          plugin_habits_from: 1000
-
-          # Maximum accepté par le plugin
-          plugin_habits_days: 30
-
-          # Informations intéressantes :
-          # - heure la plus active
-          # - jour le plus actif
-          # - indentation
-          # etc.
-          plugin_habits_facts: yes
-
-          # Graphiques :
+          # CODING HABITS
           #
           # Commit activity per time of day
           # Commit activity per day
           # Language activity
-          #
+          # ============================================================
+
+          plugin_habits: yes
+
+          # Valeurs par défaut recommandées par Metrics
+          # pour rester raisonnable et éviter les très longues analyses
+          plugin_habits_from: 200
+
+          plugin_habits_days: 14
+
+          plugin_habits_facts: yes
+
           plugin_habits_charts: yes
 
-          # Graphiques SVG fluides
           plugin_habits_charts_type: graph
 
-          # Ne pas afficher des heures complètement inutilisées
           plugin_habits_trim: yes
 
-          # Nombre de langages dans Language Activity
           plugin_habits_languages_limit: 8
 
           plugin_habits_languages_threshold: 0%
 
 
           # ============================================================
-          # MASTERED TECHNOLOGIES AND TOPICS
+          # TECHNOLOGIES / TOPICS AVEC ICÔNES
+          #
+          # C'est le bloc coloré proche de :
+          #
+          # Mastered technologies and topics
           # ============================================================
 
-          # C'EST LA PARTIE AVEC TOUTES LES ICÔNES COLORÉES
-          #
-          # Python
-          # Linux
-          # Docker
-          # Git
-          # Raspberry Pi
-          # etc.
-          #
           plugin_topics: yes
 
-          # IMPORTANT :
-          # icônes au lieu de texte
           plugin_topics_mode: icons
 
-          # Trier les technologies les plus populaires
           plugin_topics_sort: stars
 
-          # Configuration utilisée dans l'exemple officiel
-          # pour l'affichage des icônes
-          plugin_topics_limit: 0
+          # Maximum documenté : 20
+          plugin_topics_limit: 20
 
 
           # ============================================================
-          # MOST USED LANGUAGES
+          # LANGAGES
+          #
+          # Grande barre multicolore + pourcentages
           # ============================================================
 
           plugin_languages: yes
 
-          # Maximum supporté
           plugin_languages_limit: 8
 
           plugin_languages_threshold: 0%
 
           plugin_languages_other: yes
 
-          # Affiche %
-          plugin_languages_details: percentage
-
-          # Seulement la grande barre "Most used languages"
           plugin_languages_sections: most-used
 
-          # Couleurs beaucoup plus visibles
+          plugin_languages_details: percentage
+
+          # Palette colorée officielle disponible dans Metrics
           plugin_languages_colors: rainbow
 
 
           # ============================================================
-          # GITHUB PROJECTS
+          # ACHIEVEMENTS
           # ============================================================
 
-          # Comme :
-          #
-          # 1 Project
-          # Roadmap and todos
-          # ███████████████░░░
-          #
-          plugin_projects: yes
+          plugin_achievements: yes
 
-          plugin_projects_limit: 4
+          plugin_achievements_display: compact
 
-          plugin_projects_descriptions: yes
+          plugin_achievements_limit: 8
