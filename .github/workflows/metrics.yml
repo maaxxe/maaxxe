@@ -2,7 +2,6 @@ name: GitHub Metrics
 
 on:
   schedule:
-    # Mise à jour automatique tous les jours à 06:00 UTC
     - cron: "0 6 * * *"
 
   workflow_dispatch:
@@ -11,55 +10,48 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
-  github-metrics:
+  metrics:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-
     steps:
-      - name: Generate GitHub metrics
+
+      # ============================================================
+      # GRAND DASHBOARD PRINCIPAL
+      # ============================================================
+
+      - name: Generate main dashboard
         uses: lowlighter/metrics@latest
 
         with:
-          # =========================================================
-          # AUTHENTIFICATION
-          # =========================================================
-
           token: ${{ secrets.METRICS_TOKEN }}
-
           user: maaxxe
-
-          # =========================================================
-          # FICHIER GÉNÉRÉ
-          # =========================================================
 
           filename: github-metrics.svg
 
-          # =========================================================
-          # STYLE GÉNÉRAL
-          # =========================================================
-
           template: classic
 
-          # Très important :
-          # affichage large en plusieurs colonnes
+          # Très important : rendu large en colonnes
           config_display: columns
 
           config_timezone: Europe/Paris
-
           config_animations: yes
+          config_padding: 4%
 
-          # =========================================================
-          # INFORMATIONS GITHUB DE BASE
-          # =========================================================
+          # --------------------------------------------------------
+          # INFORMATIONS DE BASE
+          # --------------------------------------------------------
 
           base: header, activity, community, repositories, metadata
 
-          # =========================================================
-          # ORDRE DES WIDGETS
-          # =========================================================
+          base_indepth: yes
+
+          # --------------------------------------------------------
+          # ORDRE DU DASHBOARD
+          # --------------------------------------------------------
 
           config_order: >
             base.header,
@@ -67,47 +59,55 @@ jobs:
             languages,
             habits,
             topics,
+            achievements,
             base.activity,
             base.repositories,
             base.metadata
 
-          # =========================================================
-          # CALENDRIER 3D / ISOMÉTRIQUE
-          # =========================================================
+          # ========================================================
+          # CALENDRIER 3D
+          # ========================================================
 
           plugin_isocalendar: yes
-
           plugin_isocalendar_duration: full-year
 
-          # =========================================================
+          # ========================================================
           # LANGAGES
-          # =========================================================
+          # ========================================================
 
           plugin_languages: yes
 
           plugin_languages_limit: 8
 
-          plugin_languages_details: percentage
-
-          plugin_languages_categories: programming, markup
+          plugin_languages_threshold: 1%
 
           plugin_languages_other: yes
 
-          # On évite que les fichiers de configuration
-          # dominent les statistiques
+          plugin_languages_details: percentage
+
+          plugin_languages_sections: most-used
+
           plugin_languages_ignored: >
-            Jupyter Notebook,
             HTML,
             CSS,
-            Dockerfile,
-            Makefile
+            Jupyter Notebook
 
-          # =========================================================
-          # HABITUDES DE CODE
-          # =========================================================
+          # Couleurs personnalisées
+          plugin_languages_colors: >
+            Python:#3572A5,
+            C:#A8B9CC,
+            C++:#00599C,
+            Java:#B07219,
+            JavaScript:#F1E05A,
+            Shell:#89E051
+
+          # ========================================================
+          # CODING HABITS
+          # ========================================================
 
           plugin_habits: yes
 
+          # plus d'événements = stats plus précises
           plugin_habits_from: 500
 
           plugin_habits_days: 30
@@ -116,16 +116,85 @@ jobs:
 
           plugin_habits_charts: yes
 
+          # beaux graphes SVG
           plugin_habits_charts_type: graph
 
           plugin_habits_trim: yes
 
-          # =========================================================
-          # TECHNOLOGIES / TOPICS
-          # =========================================================
+          plugin_habits_languages_limit: 8
+
+          # ========================================================
+          # STARRED TOPICS AVEC ICONES
+          # ========================================================
 
           plugin_topics: yes
 
+          # 0 = afficher tous les topics disponibles
+          plugin_topics_limit: 0
+
           plugin_topics_mode: icons
 
-          plugin_topics_limit: 20
+          # ========================================================
+          # ACHIEVEMENTS
+          # ========================================================
+
+          plugin_achievements: yes
+
+          plugin_achievements_display: compact
+
+          plugin_achievements_limit: 8
+
+          # Ne pas faire planter tout le dashboard
+          # si un plugin secondaire échoue
+          plugins_errors_fatal: no
+
+
+      # ============================================================
+      # SECOND SVG : SKYLINE / CONTRIBUTIONS 3D
+      # ============================================================
+
+      - name: Generate skyline
+        uses: lowlighter/metrics@latest
+
+        with:
+          token: ${{ secrets.METRICS_TOKEN }}
+          user: maaxxe
+
+          filename: metrics-skyline.svg
+
+          base: ""
+
+          plugin_skyline: yes
+
+          plugin_skyline_year: 2026
+
+          plugin_skyline_frames: 60
+
+          plugin_skyline_quality: 0.8
+
+          config_animations: yes
+
+          plugins_errors_fatal: no
+
+
+      # ============================================================
+      # TROISIEME SVG : REPOSITORIES
+      # ============================================================
+
+      - name: Generate repositories
+        uses: lowlighter/metrics@latest
+
+        with:
+          token: ${{ secrets.METRICS_TOKEN }}
+          user: maaxxe
+
+          filename: metrics-repositories.svg
+
+          base: ""
+
+          plugin_repositories: yes
+
+          # Tes 6 repositories GitHub épinglés
+          plugin_repositories_pinned: 6
+
+          plugins_errors_fatal: no
