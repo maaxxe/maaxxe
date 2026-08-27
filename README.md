@@ -30,6 +30,6 @@
 
 ### AI · Computer Vision · Robotics · Embedded Systems
 
-[![Portfolio](https://img.shields.io/badge/EXPLORE_MY_PROJECTS-maaxxe.github.io-0969DA?style=for-the-badge&logo=githubpages&logoColor=white)](https://maaxxe.github.io/)
+[![Explore my projects](https://img.shields.io/badge/EXPLORE_MY_PROJECTS-maaxxe.github.io-0969DA?style=for-the-badge&logo=githubpages&logoColor=white)](https://maaxxe.github.io/)
 
 </div>
