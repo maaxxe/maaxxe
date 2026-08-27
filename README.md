@@ -16,17 +16,19 @@
 
 <br>
 
-## GitHub activity
+---
+
+## GitHub Metrics
 
 <p align="center">
+
   <img
     src="./github-metrics.svg"
     alt="Maxime Robin GitHub Metrics"
     width="100%"
   />
-</p>
 
-<br>
+</p>
 
 ---
 
