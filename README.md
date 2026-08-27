@@ -17,13 +17,11 @@
 <br>
 
 <p align="center">
-
-<img
-  src="/github-metrics.svg"
-  alt="Maxime Robin GitHub Metrics"
-  width="100%"
->
-
+  <img
+    src="./github-metrics.svg"
+    alt="Maxime Robin GitHub Metrics"
+    width="100%"
+  />
 </p>
 
 <br>
@@ -32,6 +30,6 @@
 
 ### AI · Computer Vision · Robotics · Embedded Systems
 
-[![Portfolio](https://img.shields.io/badge/Explore_my_projects-maaxxe.github.io-0969DA?style=for-the-badge&logo=githubpages&logoColor=white)](https://maaxxe.github.io/)
+[![Portfolio](https://img.shields.io/badge/EXPLORE_MY_PROJECTS-maaxxe.github.io-0969DA?style=for-the-badge&logo=githubpages&logoColor=white)](https://maaxxe.github.io/)
 
 </div>
