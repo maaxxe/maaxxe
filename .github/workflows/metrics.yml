@@ -1,13 +1,14 @@
 name: GitHub Metrics
 
 on:
-  # Mise à jour automatique tous les jours
+  # Mise à jour automatique tous les jours à 06:00 UTC
   schedule:
     - cron: "0 6 * * *"
 
-  # Lancement manuel
+  # Permet de lancer manuellement depuis GitHub Actions
   workflow_dispatch:
 
+# Évite deux générations simultanées
 concurrency:
   group: github-profile-metrics
   cancel-in-progress: true
@@ -15,25 +16,31 @@ concurrency:
 permissions:
   contents: write
 
+
 jobs:
   github-metrics:
+
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Generate GitHub Metrics
+
         uses: lowlighter/metrics@latest
 
         with:
+
           # ============================================================
-          # COMPTE
+          # COMPTE / AUTHENTIFICATION
           # ============================================================
 
           token: ${{ secrets.METRICS_TOKEN }}
+
           user: maaxxe
 
 
           # ============================================================
-          # SORTIE
+          # FICHIER GÉNÉRÉ
           # ============================================================
 
           filename: github-metrics.svg
@@ -44,69 +51,95 @@ jobs:
           # ============================================================
 
           template: classic
+
           config_display: columns
+
           config_timezone: Europe/Paris
 
           config_animations: yes
+
           config_twemoji: yes
+
           config_gemoji: yes
+
           config_octicon: yes
 
 
           # ============================================================
-          # INFORMATIONS DU PROFIL
+          # INFORMATIONS GÉNÉRALES
           # ============================================================
 
           base: header, activity, community, repositories, metadata
 
+
+          # ============================================================
+          # REPOSITORIES
+          #
+          # Prend automatiquement en compte les repositories accessibles
+          # avec METRICS_TOKEN.
+          #
+          # Cela inclut les repos privés SI le token possède les droits.
+          # ============================================================
+
           repositories: 100
+
           repositories_forks: no
-          repositories_affiliations: owner
+
+          repositories_affiliations: owner, collaborator
 
 
           # ============================================================
-          # CALENDRIER 3D DES CONTRIBUTIONS
+          # CALENDRIER DES CONTRIBUTIONS
           # ============================================================
 
           plugin_isocalendar: yes
+
           plugin_isocalendar_duration: full-year
 
 
           # ============================================================
           # LANGAGES
+          #
+          # Calculés automatiquement depuis les repositories.
+          # Aucun langage écrit manuellement dans le README.
           # ============================================================
 
           plugin_languages: yes
 
-          plugin_languages_limit: 8
+          plugin_languages_limit: 10
+
           plugin_languages_threshold: 0%
+
           plugin_languages_other: yes
 
           plugin_languages_sections: most-used
+
           plugin_languages_details: percentage
 
           plugin_languages_colors: rainbow
 
 
           # ============================================================
-          # HABITUDES DE CODE
-          #
-          # Désactivé temporairement :
-          # le plugin rencontre actuellement des erreurs avec certains
-          # événements GitHub.
-          # ============================================================
-
-          plugin_habits: no
-
-
-          # ============================================================
           # TECHNOLOGIES / TOPICS
+          #
+          # Récupère automatiquement les topics de tes repositories.
+          #
+          # Exemple :
+          # python
+          # pytorch
+          # computer-vision
+          # robotics
+          # gan
+          # embedded
+          # etc.
           # ============================================================
 
           plugin_topics: yes
 
           plugin_topics_mode: icons
+
           plugin_topics_sort: stars
+
           plugin_topics_limit: 20
 
 
@@ -115,26 +148,47 @@ jobs:
           # ============================================================
 
           plugin_lines: yes
+
           plugin_lines_sections: base
 
 
           # ============================================================
-          # PLUGINS DÉSACTIVÉS EXPLICITEMENT
+          # HABITUDES
+          #
+          # Désactivé pour l'instant car il générait
+          # "Unexpected error".
+          # ============================================================
+
+          plugin_habits: no
+
+
+          # ============================================================
+          # PAGESPEED
+          #
+          # Désactivé pour supprimer l'erreur API 429.
           # ============================================================
 
           plugin_pagespeed: no
+
+
+          # ============================================================
+          # GITHUB PROJECTS
+          #
+          # Désactivé car il générait "Unexpected error".
+          # ============================================================
+
           plugin_projects: no
 
 
           # ============================================================
-          # ORDRE
+          # ORDRE D'AFFICHAGE
           # ============================================================
 
           config_order: >
             base.header,
             isocalendar,
-            topics,
             languages,
+            topics,
             base.repositories,
             base.activity,
             base.community,
