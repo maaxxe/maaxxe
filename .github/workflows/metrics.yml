@@ -1,204 +1,80 @@
 name: GitHub Metrics
 
 on:
-  # Mise à jour automatique chaque jour à 06:00 UTC
+  # Mise à jour automatique tous les jours
   schedule:
     - cron: "0 6 * * *"
 
-  # Lancement manuel depuis GitHub > Actions
+  # Lancement manuel
   workflow_dispatch:
-
-concurrency:
-  group: github-profile-metrics
-  cancel-in-progress: true
 
 permissions:
   contents: write
 
-
 jobs:
   github-metrics:
-
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Generate GitHub dashboard
+      - name: Generate GitHub Metrics
         uses: lowlighter/metrics@latest
 
         with:
-
           # ============================================================
           # COMPTE
           # ============================================================
 
           token: ${{ secrets.METRICS_TOKEN }}
-
           user: maaxxe
 
 
           # ============================================================
-          # FICHIER DE SORTIE
+          # SORTIE
           # ============================================================
 
           filename: github-metrics.svg
 
 
           # ============================================================
-          # STYLE GENERAL
+          # APPARENCE
           # ============================================================
 
           template: classic
-
-          # Présentation similaire à ton image :
-          # plusieurs colonnes
           config_display: columns
-
           config_timezone: Europe/Paris
 
           config_animations: yes
-
           config_twemoji: yes
           config_gemoji: yes
           config_octicon: yes
 
-          plugins_errors_fatal: no
-
 
           # ============================================================
-          # INFORMATIONS PRINCIPALES DU PROFIL
+          # INFORMATIONS DU PROFIL
           # ============================================================
 
           base: header, activity, community, repositories, metadata
 
-          base_indepth: yes
-
           repositories: 100
-
           repositories_forks: no
-
           repositories_affiliations: owner
 
 
           # ============================================================
-          # ORDRE DES BLOCS
-          #
-          # Pas de MUSIC -> pas de "Suggested tracks"
-          # ============================================================
-
-          config_order: >
-            base.header,
-            pagespeed,
-            isocalendar,
-            habits,
-            topics,
-            languages,
-            projects,
-            base.repositories,
-            base.activity,
-            base.community,
-            base.metadata
-
-
-          # ============================================================
-          # LIGNES DE CODE
-          #
-          # Exemple :
-          # 1.52m added
-          # 379k removed
-          # ============================================================
-
-          plugin_lines: yes
-
-          plugin_lines_sections: base
-
-          plugin_lines_delay: 30
-
-
-          # ============================================================
-          # GOOGLE PAGESPEED
-          #
-          # Performance
-          # Accessibility
-          # Best Practices
-          # SEO
-          # ============================================================
-
-          plugin_pagespeed: yes
-
-          plugin_pagespeed_url: https://maaxxe.github.io/
-
-          plugin_pagespeed_detailed: no
-
-          plugin_pagespeed_screenshot: no
-
-          plugin_pagespeed_pwa: no
-
-
-          # ============================================================
-          # CALENDRIER DE CONTRIBUTIONS 3D
+          # CALENDRIER 3D DES CONTRIBUTIONS
           # ============================================================
 
           plugin_isocalendar: yes
-
           plugin_isocalendar_duration: full-year
 
 
           # ============================================================
-          # CODING HABITS
-          #
-          # Commit activity per time of day
-          # Commit activity per day
-          # Language activity
-          # ============================================================
-
-          plugin_habits: yes
-
-          plugin_habits_from: 200
-
-          plugin_habits_days: 14
-
-          plugin_habits_facts: yes
-
-          plugin_habits_charts: yes
-
-          plugin_habits_charts_type: graph
-
-          plugin_habits_trim: yes
-
-          plugin_habits_languages_limit: 8
-
-          plugin_habits_languages_threshold: 0%
-
-
-          # ============================================================
-          # TECHNOLOGIES / TOPICS
-          #
-          # Bloc :
-          # "Mastered technologies and topics"
-          # ============================================================
-
-          plugin_topics: yes
-
-          plugin_topics_mode: icons
-
-          plugin_topics_sort: stars
-
-          # 0 = autant que possible
-          # Si tu veux limiter : mets 20
-          plugin_topics_limit: 0
-
-
-          # ============================================================
           # LANGAGES
-          #
-          # Grande barre multicolore
           # ============================================================
 
           plugin_languages: yes
 
           plugin_languages_limit: 8
-
           plugin_languages_threshold: 0%
 
           plugin_languages_other: yes
@@ -211,24 +87,50 @@ jobs:
 
 
           # ============================================================
-          # GITHUB PROJECTS
-          #
-          # Correspond au bloc "Project" en bas à droite
-          # du visuel de référence.
+          # HABITUDES DE CODE
           # ============================================================
 
-          plugin_projects: yes
+          plugin_habits: yes
 
-          plugin_projects_limit: 1
+          plugin_habits_from: 200
+          plugin_habits_days: 14
 
-          plugin_projects_descriptions: yes
+          plugin_habits_facts: yes
+          plugin_habits_charts: yes
+
+          plugin_habits_trim: yes
 
 
           # ============================================================
-          # MUSIQUE
-          #
-          # IMPORTANT :
-          # désactivé pour supprimer "Suggested tracks"
+          # TECHNOLOGIES / TOPICS
           # ============================================================
 
-          plugin_music: no
+          plugin_topics: yes
+
+          plugin_topics_mode: icons
+          plugin_topics_sort: stars
+          plugin_topics_limit: 20
+
+
+          # ============================================================
+          # LIGNES DE CODE
+          # ============================================================
+
+          plugin_lines: yes
+          plugin_lines_sections: base
+
+
+          # ============================================================
+          # ORDRE
+          # ============================================================
+
+          config_order: >
+            base.header,
+            isocalendar,
+            habits,
+            topics,
+            languages,
+            base.repositories,
+            base.activity,
+            base.community,
+            base.metadata
