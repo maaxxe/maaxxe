@@ -1,14 +1,13 @@
 name: GitHub Metrics
 
 on:
-  # Mise à jour automatique une fois par jour
+  # Mise à jour automatique chaque jour à 06:00 UTC
   schedule:
     - cron: "0 6 * * *"
 
-  # Permet de lancer manuellement depuis GitHub Actions
+  # Lancement manuel depuis GitHub > Actions
   workflow_dispatch:
 
-# Évite d'avoir plusieurs générations Metrics en même temps
 concurrency:
   group: github-profile-metrics
   cancel-in-progress: true
@@ -25,13 +24,12 @@ jobs:
     steps:
 
       - name: Generate GitHub dashboard
-
         uses: lowlighter/metrics@latest
 
         with:
 
           # ============================================================
-          # COMPTE / AUTHENTIFICATION
+          # COMPTE
           # ============================================================
 
           token: ${{ secrets.METRICS_TOKEN }}
@@ -40,20 +38,20 @@ jobs:
 
 
           # ============================================================
-          # FICHIER GÉNÉRÉ
+          # FICHIER DE SORTIE
           # ============================================================
 
           filename: github-metrics.svg
 
 
           # ============================================================
-          # APPARENCE
+          # STYLE GENERAL
           # ============================================================
 
           template: classic
 
-          # Rend le dashboard en plusieurs colonnes,
-          # comme sur ton image de référence
+          # Présentation similaire à ton image :
+          # plusieurs colonnes
           config_display: columns
 
           config_timezone: Europe/Paris
@@ -64,13 +62,11 @@ jobs:
           config_gemoji: yes
           config_octicon: yes
 
-          # Un plugin secondaire ne doit pas faire échouer
-          # tout le workflow
           plugins_errors_fatal: no
 
 
           # ============================================================
-          # INFORMATIONS GITHUB PRINCIPALES
+          # INFORMATIONS PRINCIPALES DU PROFIL
           # ============================================================
 
           base: header, activity, community, repositories, metadata
@@ -85,7 +81,9 @@ jobs:
 
 
           # ============================================================
-          # ORDRE DES ÉLÉMENTS
+          # ORDRE DES BLOCS
+          #
+          # Pas de MUSIC -> pas de "Suggested tracks"
           # ============================================================
 
           config_order: >
@@ -95,7 +93,7 @@ jobs:
             habits,
             topics,
             languages,
-            achievements,
+            projects,
             base.repositories,
             base.activity,
             base.community,
@@ -105,9 +103,9 @@ jobs:
           # ============================================================
           # LIGNES DE CODE
           #
-          # Affiche :
-          # xxx added
-          # xxx removed
+          # Exemple :
+          # 1.52m added
+          # 379k removed
           # ============================================================
 
           plugin_lines: yes
@@ -130,11 +128,6 @@ jobs:
 
           plugin_pagespeed_url: https://maaxxe.github.io/
 
-          # Crée un secret PAGESPEED_TOKEN pour éviter l'erreur 429
-          plugin_pagespeed_token: ${{ secrets.PAGESPEED_TOKEN }}
-
-          # Comme ton image de référence :
-          # uniquement les scores principaux
           plugin_pagespeed_detailed: no
 
           plugin_pagespeed_screenshot: no
@@ -161,8 +154,6 @@ jobs:
 
           plugin_habits: yes
 
-          # Valeurs par défaut recommandées par Metrics
-          # pour rester raisonnable et éviter les très longues analyses
           plugin_habits_from: 200
 
           plugin_habits_days: 14
@@ -181,11 +172,10 @@ jobs:
 
 
           # ============================================================
-          # TECHNOLOGIES / TOPICS AVEC ICÔNES
+          # TECHNOLOGIES / TOPICS
           #
-          # C'est le bloc coloré proche de :
-          #
-          # Mastered technologies and topics
+          # Bloc :
+          # "Mastered technologies and topics"
           # ============================================================
 
           plugin_topics: yes
@@ -194,14 +184,15 @@ jobs:
 
           plugin_topics_sort: stars
 
-          # Maximum documenté : 20
-          plugin_topics_limit: 20
+          # 0 = autant que possible
+          # Si tu veux limiter : mets 20
+          plugin_topics_limit: 0
 
 
           # ============================================================
           # LANGAGES
           #
-          # Grande barre multicolore + pourcentages
+          # Grande barre multicolore
           # ============================================================
 
           plugin_languages: yes
@@ -216,16 +207,28 @@ jobs:
 
           plugin_languages_details: percentage
 
-          # Palette colorée officielle disponible dans Metrics
           plugin_languages_colors: rainbow
 
 
           # ============================================================
-          # ACHIEVEMENTS
+          # GITHUB PROJECTS
+          #
+          # Correspond au bloc "Project" en bas à droite
+          # du visuel de référence.
           # ============================================================
 
-          plugin_achievements: yes
+          plugin_projects: yes
 
-          plugin_achievements_display: compact
+          plugin_projects_limit: 1
 
-          plugin_achievements_limit: 8
+          plugin_projects_descriptions: yes
+
+
+          # ============================================================
+          # MUSIQUE
+          #
+          # IMPORTANT :
+          # désactivé pour supprimer "Suggested tracks"
+          # ============================================================
+
+          plugin_music: no
